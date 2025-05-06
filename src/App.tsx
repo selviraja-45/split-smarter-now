@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import CreateGroup from "./pages/groups/CreateGroup";
+import JoinGroup from "./pages/groups/JoinGroup";
+import GroupDetail from "./pages/groups/GroupDetail";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/groups/create" element={<CreateGroup />} />
+            <Route path="/groups/join" element={<JoinGroup />} />
+            <Route path="/groups/:id" element={<GroupDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -38,20 +38,22 @@ const Navbar = () => {
         
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
-            <Button onClick={handleSignOut} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+            <Button onClick={handleSignOut} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full">
               Sign Out
             </Button>
           ) : (
             <Button 
               onClick={navigateToAuth} 
               variant="outline" 
-              className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full"
             >
               Login
             </Button>
           )}
           {!user && (
-            <Button onClick={() => navigate("/auth?tab=signup")}>Get Started</Button>
+            <Button onClick={() => navigate("/auth?tab=signup")} className="w-full">
+              Get Started
+            </Button>
           )}
         </div>
         
