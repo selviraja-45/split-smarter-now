@@ -80,7 +80,7 @@ const CreateGroup = () => {
       console.error('Error creating group:', error);
       toast.error(error.message || 'Failed to create group');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 

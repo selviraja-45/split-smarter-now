@@ -25,10 +25,6 @@ interface GroupMember {
   created_at: string;
   user_email: string;
   user_name: string;
-  profiles?: {
-    email: string | null;
-    full_name: string | null;
-  }
 }
 
 const GroupDetail = () => {
@@ -77,6 +73,7 @@ const GroupDetail = () => {
         setGroup(groupData);
 
         // Fetch group members with user profiles
+        // Using a JOIN query to get member information
         const { data: membersData, error: membersError } = await supabase
           .from('group_members')
           .select(`
@@ -91,12 +88,24 @@ const GroupDetail = () => {
         if (membersError) throw membersError;
         
         // Transform the data to flatten the structure
+        // Handle potential profile issues safely
         if (membersData) {
-          const transformedMembers = membersData.map(member => ({
-            ...member,
-            user_email: member.profiles?.email || 'Unknown',
-            user_name: member.profiles?.full_name || 'Unknown User'
-          }));
+          const transformedMembers = membersData.map(member => {
+            // Handle case when profiles might be an error or null
+            let userEmail = 'Unknown';
+            let userName = 'Unknown User';
+            
+            if (member.profiles && typeof member.profiles === 'object' && !('error' in member.profiles)) {
+              userEmail = member.profiles.email || 'Unknown';
+              userName = member.profiles.full_name || 'Unknown User';
+            }
+            
+            return {
+              ...member,
+              user_email: userEmail,
+              user_name: userName
+            };
+          });
           
           setMembers(transformedMembers);
         }
