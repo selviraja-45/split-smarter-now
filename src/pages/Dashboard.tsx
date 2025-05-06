@@ -29,10 +29,12 @@ const Dashboard = () => {
       try {
         setLoading(true);
 
-        // Get groups the user owns or is a member of
+        // Get groups the user belongs to by querying group_members
+        // This relies on RLS policies to only return groups the user is a member of
         const { data: memberGroups, error: memberError } = await supabase
           .from('group_members')
-          .select('group_id');
+          .select('group_id')
+          .eq('user_id', user.id);
 
         if (memberError) throw memberError;
 
@@ -49,7 +51,7 @@ const Dashboard = () => {
         } else {
           setGroups([]);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching groups:', error);
         toast.error('Failed to load groups');
       } finally {

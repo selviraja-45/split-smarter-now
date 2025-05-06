@@ -46,7 +46,7 @@ const CreateGroup = () => {
       // Generate a unique invite code
       const inviteCode = nanoid(8);
       
-      // Create the group
+      // Create the group - RLS will automatically verify auth.uid()
       const { data: groupData, error } = await supabase
         .from('groups')
         .insert({
@@ -58,7 +58,10 @@ const CreateGroup = () => {
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating group:", error);
+        throw error;
+      }
       
       // Add the creator as a member
       if (groupData) {
@@ -70,7 +73,10 @@ const CreateGroup = () => {
             role: 'owner',
           });
         
-        if (memberError) throw memberError;
+        if (memberError) {
+          console.error("Error adding member:", memberError);
+          throw memberError;
+        }
       }
       
       toast.success('Group created successfully!');

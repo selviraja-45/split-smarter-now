@@ -9,6 +9,88 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      expense_participants: {
+        Row: {
+          amount: number
+          created_at: string
+          expense_id: string
+          id: string
+          percentage: number
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          expense_id: string
+          id?: string
+          percentage: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expense_id?: string
+          id?: string
+          percentage?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_participants_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          currency: string
+          date: string
+          description: string
+          group_id: string
+          id: string
+          payer_id: string
+          split_type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          currency: string
+          date: string
+          description: string
+          group_id: string
+          id?: string
+          payer_id: string
+          split_type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          currency?: string
+          date?: string
+          description?: string
+          group_id?: string
+          id?: string
+          payer_id?: string
+          split_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           created_at: string
