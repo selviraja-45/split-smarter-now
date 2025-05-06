@@ -1,15 +1,28 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  const navigateToAuth = () => {
+    navigate("/auth");
+    setIsMenuOpen(false);
+  };
 
   return (
     <nav className="py-4 px-6 md:px-12 lg:px-24 w-full fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          <span className="text-xl font-bold text-primary">SplitSmarter</span>
+          <Link to="/" className="text-xl font-bold text-primary">SplitSmarter</Link>
         </div>
         
         <div className="hidden md:flex justify-center absolute left-0 right-0 mx-auto">
@@ -17,14 +30,29 @@ const Navbar = () => {
             <a href="#features" className="text-gray-700 hover:text-primary transition-colors">Features</a>
             <a href="#how-it-works" className="text-gray-700 hover:text-primary transition-colors">How it Works</a>
             <a href="#demo" className="text-gray-700 hover:text-primary transition-colors">Demo</a>
+            {user && (
+              <Link to="/dashboard" className="text-gray-700 hover:text-primary transition-colors">Dashboard</Link>
+            )}
           </div>
         </div>
         
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
-            Login
-          </Button>
-          <Button>Get Started</Button>
+          {user ? (
+            <Button onClick={handleSignOut} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+              Sign Out
+            </Button>
+          ) : (
+            <Button 
+              onClick={navigateToAuth} 
+              variant="outline" 
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+            >
+              Login
+            </Button>
+          )}
+          {!user && (
+            <Button onClick={() => navigate("/auth?tab=signup")}>Get Started</Button>
+          )}
         </div>
         
         <div className="md:hidden">
@@ -51,10 +79,27 @@ const Navbar = () => {
             <a href="#features" className="text-gray-700 hover:text-primary transition-colors">Features</a>
             <a href="#how-it-works" className="text-gray-700 hover:text-primary transition-colors">How it Works</a>
             <a href="#demo" className="text-gray-700 hover:text-primary transition-colors">Demo</a>
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full">
-              Login
-            </Button>
-            <Button className="w-full">Get Started</Button>
+            {user && (
+              <Link to="/dashboard" className="text-gray-700 hover:text-primary transition-colors">Dashboard</Link>
+            )}
+            {user ? (
+              <Button onClick={handleSignOut} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full">
+                Sign Out
+              </Button>
+            ) : (
+              <Button 
+                onClick={navigateToAuth} 
+                variant="outline" 
+                className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full"
+              >
+                Login
+              </Button>
+            )}
+            {!user && (
+              <Button onClick={() => { navigate("/auth?tab=signup"); setIsMenuOpen(false); }} className="w-full">
+                Get Started
+              </Button>
+            )}
           </div>
         </div>
       )}
