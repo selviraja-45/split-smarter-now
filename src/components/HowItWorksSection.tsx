@@ -2,7 +2,7 @@
 const steps = [
   {
     number: 1,
-    title: "Create a Group",
+    title: "Create/Join a Group",
     description: "Invite friends using a simple code.",
     image: "/placeholder.svg",
   },
@@ -36,7 +36,10 @@ const HowItWorksSection = () => {
             <div key={index} className="relative">
               {/* Step connector line */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-24 left-[52%] w-full h-[2px] bg-gray-300"></div>
+                <div className="hidden md:flex absolute top-24 left-[52%] w-full h-[2px] items-center">
+                  <div className="w-full border-t-2 border-dashed border-gray-300"></div>
+                  <div className="absolute right-0 w-2 h-2 rounded-full bg-primary -mt-1"></div>
+                </div>
               )}
               
               <div className="flex flex-col items-center text-center">
