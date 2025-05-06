@@ -25,7 +25,7 @@ interface MemberWithProfile {
   group_id: string;
   role: string;
   created_at: string;
-  profiles: Profile | null;
+  profiles: Profile | null | { error: true };
 }
 
 const GroupDetail = () => {
@@ -95,9 +95,15 @@ const GroupDetail = () => {
         // Transform the data to flatten the structure
         if (membersData) {
           const transformedMembers = membersData.map((member: MemberWithProfile) => {
-            // Handle case when profiles might be null or undefined
-            const userEmail = member.profiles?.email ?? 'Unknown';
-            const userName = member.profiles?.full_name ?? 'Unknown User';
+            // Handle cases when profiles might have an error, be null, or undefined
+            let userEmail = 'Unknown';
+            let userName = 'Unknown User';
+            
+            // Check if profiles is not an error and actually contains data
+            if (member.profiles && !('error' in member.profiles)) {
+              userEmail = member.profiles.email ?? 'Unknown';
+              userName = member.profiles.full_name ?? 'Unknown User';
+            }
             
             return {
               ...member,
