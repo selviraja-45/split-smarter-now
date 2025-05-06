@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,8 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('User signed out');
         } else if (event === 'USER_UPDATED') {
           console.log('User updated:', session?.user);
-        } else if (event === 'USER_DELETED') {
-          console.log('User deleted');
         } else if (event === 'PASSWORD_RECOVERY') {
           console.log('Password recovery initiated');
         }
