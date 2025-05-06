@@ -7,25 +7,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GroupMembersList } from "@/components/groups/GroupMembersList";
 import { GroupInviteCode } from "@/components/groups/GroupInviteCode";
-import { GroupExpensesPlaceholder } from "@/components/groups/GroupExpensesPlaceholder";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ExpenseList } from "@/components/expenses/ExpenseList";
+import { BalanceSummary } from "@/components/balances/BalanceSummary";
+import { SettlementList } from "@/components/settlements/SettlementList";
+import { Group, GroupMember, Expense, ExpenseParticipant, Balance, Settlement, generateMockExpenses, generateMockExpenseParticipants, calculateBalances, calculateSettlements } from "@/models/types";
 
-interface Group {
-  id: string;
-  name: string;
-  description: string | null;
-  invite_code: string;
-  created_at: string;
-  owner_id: string;
+// Define proper profile type to avoid TypeScript errors
+interface Profile {
+  email: string | null;
+  full_name: string | null;
 }
 
-interface GroupMember {
+interface MemberWithProfile {
   id: string;
   user_id: string;
   group_id: string;
   role: string;
   created_at: string;
-  user_email: string;
-  user_name: string;
+  profiles: Profile | null;
 }
 
 const GroupDetail = () => {
@@ -34,6 +34,11 @@ const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [participants, setParticipants] = useState<ExpenseParticipant[]>([]);
+  const [balances, setBalances] = useState<Balance[]>([]);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
+  const [activeCurrency, setActiveCurrency] = useState("USD");
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
 
@@ -89,7 +94,7 @@ const GroupDetail = () => {
         
         // Transform the data to flatten the structure
         if (membersData) {
-          const transformedMembers = membersData.map(member => {
+          const transformedMembers = membersData.map((member: MemberWithProfile) => {
             // Handle case when profiles might be null or undefined
             const userEmail = member.profiles?.email ?? 'Unknown';
             const userName = member.profiles?.full_name ?? 'Unknown User';
@@ -102,6 +107,21 @@ const GroupDetail = () => {
           });
           
           setMembers(transformedMembers);
+          
+          // For development, generate mock expenses
+          if (transformedMembers.length > 0) {
+            const mockExpenses = generateMockExpenses(id, transformedMembers, 8);
+            setExpenses(mockExpenses);
+            
+            const mockParticipants = generateMockExpenseParticipants(mockExpenses, transformedMembers);
+            setParticipants(mockParticipants);
+            
+            const calculatedBalances = calculateBalances(mockExpenses, mockParticipants, transformedMembers);
+            setBalances(calculatedBalances);
+            
+            const calculatedSettlements = calculateSettlements(calculatedBalances);
+            setSettlements(calculatedSettlements);
+          }
         }
       } catch (error: any) {
         console.error('Error fetching group details:', error);
@@ -114,6 +134,25 @@ const GroupDetail = () => {
 
     fetchGroupDetails();
   }, [user, id, navigate]);
+
+  const handleCreateExpense = (newExpense: Expense, newParticipants: ExpenseParticipant[]) => {
+    // Add expense and participants to state
+    setExpenses(prev => [...prev, newExpense]);
+    setParticipants(prev => [...prev, ...newParticipants]);
+    
+    // Recalculate balances and settlements
+    const updatedBalances = calculateBalances(
+      [...expenses, newExpense], 
+      [...participants, ...newParticipants], 
+      members
+    );
+    setBalances(updatedBalances);
+    
+    const updatedSettlements = calculateSettlements(updatedBalances);
+    setSettlements(updatedSettlements);
+    
+    toast.success('Expense added successfully');
+  };
 
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -147,8 +186,38 @@ const GroupDetail = () => {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
         <div className="md:col-span-8">
-          {/* This space reserved for expenses/transactions */}
-          <GroupExpensesPlaceholder />
+          <Tabs defaultValue="expenses">
+            <TabsList className="mb-4">
+              <TabsTrigger value="expenses">Expenses</TabsTrigger>
+              <TabsTrigger value="balances">Balances</TabsTrigger>
+              <TabsTrigger value="settle">Settle Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="expenses">
+              <ExpenseList 
+                expenses={expenses} 
+                participants={participants} 
+                members={members} 
+                groupId={group.id}
+                onCreateExpense={handleCreateExpense}
+              />
+            </TabsContent>
+            
+            <TabsContent value="balances">
+              <BalanceSummary 
+                balances={balances} 
+                members={members} 
+                currency={activeCurrency}
+              />
+            </TabsContent>
+            
+            <TabsContent value="settle">
+              <SettlementList 
+                settlements={settlements} 
+                currency={activeCurrency}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
 
         <div className="md:col-span-4">
