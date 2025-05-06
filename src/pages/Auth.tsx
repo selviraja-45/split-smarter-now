@@ -1,16 +1,17 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -26,6 +27,30 @@ const Auth = () => {
   const { user, signIn, signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("login");
+
+  useEffect(() => {
+    // Check if we have a hash with an error parameter
+    const hash = window.location.hash;
+    if (hash.includes('error=')) {
+      const errorParams = new URLSearchParams(hash.replace('#', ''));
+      const errorMessage = errorParams.get('error_description')?.replace(/\+/g, ' ');
+      
+      if (errorMessage) {
+        toast.error(errorMessage, {
+          className: "bg-red-50 border-red-500 text-red-800",
+          style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
+        });
+      }
+    }
+    
+    // Check if coming from sign-up tab
+    const tab = searchParams.get("tab");
+    if (tab === "signup") {
+      setActiveTab("signup");
+    }
+  }, [searchParams]);
 
   // Redirect if user is already logged in
   if (user) {
@@ -52,7 +77,6 @@ const Auth = () => {
     setIsLoading(true);
     try {
       await signIn(data.email, data.password);
-      navigate("/dashboard");
     } catch (error) {
       // Error is handled in the Auth context
     } finally {
@@ -64,13 +88,32 @@ const Auth = () => {
     setIsLoading(true);
     try {
       await signUp(data.email, data.password);
-      // Stay on the page as user needs to confirm email
+      // Stay on the page as user may need to confirm email
     } catch (error) {
       // Error is handled in the Auth context
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Check for redirect based on hash fragment
+  useEffect(() => {
+    const handleHashRedirect = async () => {
+      const hash = window.location.hash;
+      if (hash && hash.substring(1).split('&').some(param => param.startsWith('access_token='))) {
+        const { error } = await supabase.auth.getUser();
+        if (!error) {
+          navigate('/dashboard');
+          toast.success("Successfully authenticated!", {
+            className: "bg-green-50 border-green-500 text-green-800",
+            style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
+          });
+        }
+      }
+    };
+    
+    handleHashRedirect();
+  }, [navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
@@ -81,7 +124,7 @@ const Auth = () => {
         </div>
         
         <Card>
-          <Tabs defaultValue="login">
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -105,6 +148,7 @@ const Auth = () => {
                             <Input 
                               placeholder="email@example.com" 
                               type="email" 
+                              autoComplete="email"
                               {...field} 
                             />
                           </FormControl>
@@ -122,6 +166,7 @@ const Auth = () => {
                             <Input 
                               placeholder="••••••••" 
                               type="password" 
+                              autoComplete="current-password"
                               {...field} 
                             />
                           </FormControl>
@@ -155,6 +200,7 @@ const Auth = () => {
                             <Input 
                               placeholder="email@example.com" 
                               type="email" 
+                              autoComplete="email"
                               {...field} 
                             />
                           </FormControl>
@@ -172,6 +218,7 @@ const Auth = () => {
                             <Input 
                               placeholder="••••••••" 
                               type="password" 
+                              autoComplete="new-password"
                               {...field} 
                             />
                           </FormControl>
