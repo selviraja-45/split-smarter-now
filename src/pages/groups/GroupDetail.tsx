@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Navigate, useParams } from "react-router-dom";
@@ -73,7 +72,6 @@ const GroupDetail = () => {
         setGroup(groupData);
 
         // Fetch group members with user profiles
-        // Using a JOIN query to get member information
         const { data: membersData, error: membersError } = await supabase
           .from('group_members')
           .select(`
@@ -88,16 +86,20 @@ const GroupDetail = () => {
         if (membersError) throw membersError;
         
         // Transform the data to flatten the structure
-        // Handle potential profile issues safely
         if (membersData) {
           const transformedMembers = membersData.map(member => {
             // Handle case when profiles might be null or undefined
             let userEmail = 'Unknown';
             let userName = 'Unknown User';
             
-            if (member.profiles && typeof member.profiles === 'object') {
-              userEmail = member.profiles.email || 'Unknown';
-              userName = member.profiles.full_name || 'Unknown User';
+            // Fixed TypeScript error by properly checking if profiles exists before accessing its properties
+            if (member.profiles) {
+              // Additional check to ensure profiles is an object
+              if (typeof member.profiles === 'object') {
+                // Safe property access with nullish coalescing operator
+                userEmail = member.profiles?.email ?? 'Unknown';
+                userName = member.profiles?.full_name ?? 'Unknown User';
+              }
             }
             
             return {
