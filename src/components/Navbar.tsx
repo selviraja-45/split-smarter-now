@@ -22,7 +22,7 @@ const Navbar = () => {
     <nav className="py-4 px-6 md:px-12 lg:px-24 w-full fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          <Link to="/" className="text-xl font-bold text-primary">SplitSmarter</Link>
+          <Link to="/" className="text-xl font-bold text-primary">BudgetSplit</Link>
         </div>
         
         <div className="hidden md:flex justify-center absolute left-0 right-0 mx-auto">

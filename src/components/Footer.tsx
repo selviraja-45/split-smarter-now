@@ -6,7 +6,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           {/* Logo and info */}
           <div className="md:col-span-2">
-            <div className="text-2xl font-bold mb-6">SplitSmarter</div>
+            <div className="text-2xl font-bold mb-6">BudgetSplit</div>
             <p className="text-gray-400 mb-6 max-w-md">
               Making expense splitting easy for friends, roommates, and teams since 2025.
             </p>
@@ -49,7 +49,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-8 border-t border-gray-800 text-gray-400 text-sm">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p>© 2025 SplitSmarter. All rights reserved.</p>
+            <p>© 2025 BudgetSplit. All rights reserved.</p>
             <p className="mt-4 md:mt-0">Made with 💙 for friends who split bills</p>
           </div>
         </div>
