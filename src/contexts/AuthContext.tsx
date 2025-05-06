@@ -28,6 +28,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Handle specific auth events if needed
+        if (event === 'SIGNED_IN') {
+          console.log('User signed in:', session?.user?.email);
+        } else if (event === 'SIGNED_OUT') {
+          console.log('User signed out');
+        }
       }
     );
 
@@ -43,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { error, data } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -55,10 +63,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (data.user && !data.session) {
         // Email confirmation required
-        toast.success("Verification email sent! Please check your inbox.", {
+        toast.success("Verification email sent! Please check your inbox and spam folder.", {
           className: "bg-green-50 border-green-500 text-green-800",
           style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
+          duration: 6000
         });
+        
+        // For development purposes, if you need to auto-confirm emails
+        console.log("User ID for manual confirmation if needed:", data.user.id);
       } else if (data.session) {
         // Auto-confirm is enabled or email already confirmed
         navigate("/dashboard");
@@ -73,11 +85,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
       });
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       navigate("/dashboard");
@@ -91,11 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
       });
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate("/auth");
@@ -109,6 +127,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
       });
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
