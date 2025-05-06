@@ -41,7 +41,7 @@ const JoinGroup = () => {
     
     try {
       // Find the group by invite code
-      const { data: group, error: groupError } = await supabase
+      const { data: groupData, error: groupError } = await supabase
         .from('groups')
         .select('*')
         .eq('invite_code', data.inviteCode)
@@ -57,34 +57,35 @@ const JoinGroup = () => {
         return;
       }
       
-      // Check if user is already a member
-      const { data: existingMember, error: memberCheckError } = await supabase
-        .from('group_members')
-        .select('*')
-        .eq('group_id', group.id)
-        .eq('user_id', user.id)
-        .single();
-      
-      if (existingMember) {
-        toast.info('You are already a member of this group');
+      if (groupData) {
+        // Check if user is already a member
+        const { data: existingMember, error: memberCheckError } = await supabase
+          .from('group_members')
+          .select('*')
+          .eq('group_id', groupData.id)
+          .eq('user_id', user.id)
+          .single();
+        
+        if (existingMember) {
+          toast.info('You are already a member of this group');
+          navigate('/dashboard');
+          return;
+        }
+        
+        // Add user to the group
+        const { error: joinError } = await supabase
+          .from('group_members')
+          .insert({
+            group_id: groupData.id,
+            user_id: user.id,
+            role: 'member',
+          });
+        
+        if (joinError) throw joinError;
+        
+        toast.success(`You've joined "${groupData.name}"`);
         navigate('/dashboard');
-        return;
       }
-      
-      // Add user to the group
-      const { error: joinError } = await supabase
-        .from('group_members')
-        .insert({
-          group_id: group.id,
-          user_id: user.id,
-          role: 'member',
-        });
-      
-      if (joinError) throw joinError;
-      
-      toast.success(`You've joined "${group.name}"`);
-      navigate('/dashboard');
-      
     } catch (error: any) {
       console.error('Error joining group:', error);
       toast.error(error.message || 'Failed to join group');

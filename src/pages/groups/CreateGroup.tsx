@@ -47,7 +47,7 @@ const CreateGroup = () => {
       const inviteCode = nanoid(8);
       
       // Create the group
-      const { data: group, error } = await supabase
+      const { data: groupData, error } = await supabase
         .from('groups')
         .insert({
           name: data.name,
@@ -61,15 +61,17 @@ const CreateGroup = () => {
       if (error) throw error;
       
       // Add the creator as a member
-      const { error: memberError } = await supabase
-        .from('group_members')
-        .insert({
-          group_id: group.id,
-          user_id: user.id,
-          role: 'owner',
-        });
-      
-      if (memberError) throw memberError;
+      if (groupData) {
+        const { error: memberError } = await supabase
+          .from('group_members')
+          .insert({
+            group_id: groupData.id,
+            user_id: user.id,
+            role: 'owner',
+          });
+        
+        if (memberError) throw memberError;
+      }
       
       toast.success('Group created successfully!');
       navigate('/dashboard');
@@ -78,7 +80,7 @@ const CreateGroup = () => {
       console.error('Error creating group:', error);
       toast.error(error.message || 'Failed to create group');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 

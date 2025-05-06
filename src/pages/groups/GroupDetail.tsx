@@ -25,6 +25,10 @@ interface GroupMember {
   created_at: string;
   user_email: string;
   user_name: string;
+  profiles?: {
+    email: string | null;
+    full_name: string | null;
+  }
 }
 
 const GroupDetail = () => {
@@ -58,7 +62,9 @@ const GroupDetail = () => {
           return;
         }
 
-        setIsOwner(membershipCheck.role === 'owner');
+        if (membershipCheck?.role) {
+          setIsOwner(membershipCheck.role === 'owner');
+        }
 
         // Fetch group details
         const { data: groupData, error: groupError } = await supabase
@@ -85,13 +91,15 @@ const GroupDetail = () => {
         if (membersError) throw membersError;
         
         // Transform the data to flatten the structure
-        const transformedMembers = membersData.map(member => ({
-          ...member,
-          user_email: member.profiles?.email || 'Unknown',
-          user_name: member.profiles?.full_name || 'Unknown User'
-        }));
-        
-        setMembers(transformedMembers);
+        if (membersData) {
+          const transformedMembers = membersData.map(member => ({
+            ...member,
+            user_email: member.profiles?.email || 'Unknown',
+            user_name: member.profiles?.full_name || 'Unknown User'
+          }));
+          
+          setMembers(transformedMembers);
+        }
       } catch (error: any) {
         console.error('Error fetching group details:', error);
         toast.error('Failed to load group details');

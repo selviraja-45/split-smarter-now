@@ -33,7 +33,7 @@ const GroupList = ({ groups }: GroupListProps) => {
           <CardFooter>
             <Link to={`/groups/${group.id}`} className="w-full">
               <Button variant="outline" className="w-full">
-                View Group
+                <span className="w-full h-full flex items-center justify-center">View Group</span>
               </Button>
             </Link>
           </CardFooter>

@@ -39,7 +39,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
             <Button onClick={handleSignOut} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full">
-              Sign Out
+              <span className="w-full h-full flex items-center justify-center">Sign Out</span>
             </Button>
           ) : (
             <Button 
@@ -47,12 +47,12 @@ const Navbar = () => {
               variant="outline" 
               className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full"
             >
-              Login
+              <span className="w-full h-full flex items-center justify-center">Login</span>
             </Button>
           )}
           {!user && (
             <Button onClick={() => navigate("/auth?tab=signup")} className="w-full">
-              Get Started
+              <span className="w-full h-full flex items-center justify-center">Get Started</span>
             </Button>
           )}
         </div>
@@ -86,7 +86,7 @@ const Navbar = () => {
             )}
             {user ? (
               <Button onClick={handleSignOut} variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full">
-                Sign Out
+                <span className="w-full h-full flex items-center justify-center">Sign Out</span>
               </Button>
             ) : (
               <Button 
@@ -94,12 +94,12 @@ const Navbar = () => {
                 variant="outline" 
                 className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full"
               >
-                Login
+                <span className="w-full h-full flex items-center justify-center">Login</span>
               </Button>
             )}
             {!user && (
               <Button onClick={() => { navigate("/auth?tab=signup"); setIsMenuOpen(false); }} className="w-full">
-                Get Started
+                <span className="w-full h-full flex items-center justify-center">Get Started</span>
               </Button>
             )}
           </div>

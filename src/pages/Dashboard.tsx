@@ -32,8 +32,7 @@ const Dashboard = () => {
         // Get groups the user owns or is a member of
         const { data: memberGroups, error: memberError } = await supabase
           .from('group_members')
-          .select('group_id')
-          .eq('user_id', user.id);
+          .select('group_id');
 
         if (memberError) throw memberError;
 
