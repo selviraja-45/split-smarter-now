@@ -4,19 +4,19 @@ const steps = [
     number: 1,
     title: "Create/Join a Group",
     description: "Invite friends using a simple code.",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=500",
   },
   {
     number: 2,
     title: "Add Expenses",
     description: "Select who paid and who participated. Upload the bill.",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=500",
   },
   {
     number: 3,
     title: "Settle Easily",
     description: "We'll show the optimized payment plan.",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&q=80&w=500",
   },
 ];
 
@@ -34,11 +34,11 @@ const HowItWorksSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4">
           {steps.map((step, index) => (
             <div key={index} className="relative">
-              {/* Step connector line */}
+              {/* Step connector line - visible on all screens now */}
               {index < steps.length - 1 && (
-                <div className="hidden md:flex absolute top-24 left-[52%] w-full h-[2px] items-center">
-                  <div className="w-full border-t-2 border-dashed border-gray-300"></div>
-                  <div className="absolute right-0 w-2 h-2 rounded-full bg-primary -mt-1"></div>
+                <div className="flex absolute top-24 left-[52%] w-[120%] h-[2px] items-center">
+                  <div className="w-full border-t-3 border-dashed border-gray-300"></div>
+                  <div className="absolute right-0 w-3 h-3 rounded-full bg-primary -mt-1.5"></div>
                 </div>
               )}
               
@@ -49,11 +49,11 @@ const HowItWorksSection = () => {
                 </div>
                 
                 {/* Illustration */}
-                <div className="bg-gray-100 w-48 h-48 rounded-full flex items-center justify-center mb-6">
+                <div className="bg-gray-100 w-48 h-48 rounded-full flex items-center justify-center mb-6 overflow-hidden">
                   <img 
                     src={step.image} 
                     alt={`Step ${step.number}: ${step.title}`} 
-                    className="w-32 h-32 object-contain" 
+                    className="w-full h-full object-cover" 
                   />
                 </div>
                 
