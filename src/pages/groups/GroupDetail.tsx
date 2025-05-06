@@ -91,16 +91,8 @@ const GroupDetail = () => {
         if (membersData) {
           const transformedMembers = membersData.map(member => {
             // Handle case when profiles might be null or undefined
-            let userEmail = 'Unknown';
-            let userName = 'Unknown User';
-            
-            // Safely access profile properties with proper null checking
-            if (member.profiles) {
-              if (typeof member.profiles === 'object') {
-                userEmail = member.profiles.email ?? 'Unknown';
-                userName = member.profiles.full_name ?? 'Unknown User';
-              }
-            }
+            const userEmail = member.profiles?.email ?? 'Unknown';
+            const userName = member.profiles?.full_name ?? 'Unknown User';
             
             return {
               ...member,
