@@ -32,11 +32,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle specific auth events if needed
         if (event === 'SIGNED_IN') {
           console.log('User signed in:', session?.user?.email);
+          toast.success("Successfully signed in!", {
+            className: "bg-green-50 border-green-500 text-green-800",
+            style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
+          });
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out');
+        } else if (event === 'USER_UPDATED') {
+          console.log('User updated:', session?.user);
         }
       }
     );
+
+    // Handle URL hash for password recovery and email confirmation
+    const handleHashParams = async () => {
+      const hash = window.location.hash;
+      if (hash && hash.includes('type=recovery')) {
+        console.log('Password recovery detected');
+        // Handle password recovery
+      } else if (hash && hash.includes('type=signup')) {
+        console.log('Email confirmation detected');
+        // Handle email confirmation
+      }
+    };
+    
+    handleHashParams();
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,16 +66,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
     try {
       setLoading(true);
+      
+      // Use the current window location for email redirects
+      const redirectUrl = window.location.origin + '/auth';
+      console.log("Using redirect URL:", redirectUrl);
+      
       const { error, data } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
-          emailRedirectTo: window.location.origin + '/auth'
+          emailRedirectTo: redirectUrl
         }
       });
       
@@ -63,14 +88,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (data.user && !data.session) {
         // Email confirmation required
-        toast.success("Verification email sent! Please check your inbox and spam folder.", {
-          className: "bg-green-50 border-green-500 text-green-800",
-          style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
-          duration: 6000
-        });
-        
-        // For development purposes, if you need to auto-confirm emails
+        console.log("Email confirmation required for:", email);
         console.log("User ID for manual confirmation if needed:", data.user.id);
+        
+        toast.success(
+          <div className="space-y-2">
+            <p className="font-semibold">Verification email sent!</p>
+            <p>Please check your inbox and spam folder for the verification email.</p>
+            <p className="text-xs">If you don't receive it within a few minutes, you may need to:</p>
+            <ul className="list-disc pl-4 text-xs">
+              <li>Check your spam/junk folder</li>
+              <li>Verify your email address is correct</li>
+              <li>Contact support if issues persist</li>
+            </ul>
+          </div>, 
+          {
+            className: "bg-green-50 border-green-500 text-green-800",
+            style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
+            duration: 10000
+          }
+        );
       } else if (data.session) {
         // Auto-confirm is enabled or email already confirmed
         navigate("/dashboard");
@@ -80,10 +117,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (error: any) {
-      toast.error(error.message || "Error signing up", {
-        className: "bg-red-50 border-red-500 text-red-800",
-        style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
-      });
+      const errorMessage = error.message || "Error signing up";
+      console.error("Signup error:", errorMessage);
+      
+      toast.error(
+        <div>
+          <p className="font-semibold">Signup Failed</p>
+          <p>{errorMessage}</p>
+        </div>, 
+        {
+          className: "bg-red-50 border-red-500 text-red-800",
+          style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
+        }
+      );
       throw error;
     } finally {
       setLoading(false);
@@ -101,10 +147,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
       });
     } catch (error: any) {
-      toast.error(error.message || "Error signing in", {
-        className: "bg-red-50 border-red-500 text-red-800",
-        style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
-      });
+      const errorMessage = error.message || "Error signing in";
+      console.error("Sign in error:", errorMessage);
+      
+      toast.error(
+        <div>
+          <p className="font-semibold">Sign In Failed</p>
+          <p>{errorMessage}</p>
+        </div>,
+        {
+          className: "bg-red-50 border-red-500 text-red-800",
+          style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
+        }
+      );
       throw error;
     } finally {
       setLoading(false);
@@ -122,10 +177,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
       });
     } catch (error: any) {
-      toast.error(error.message || "Error signing out", {
-        className: "bg-red-50 border-red-500 text-red-800",
-        style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
-      });
+      const errorMessage = error.message || "Error signing out";
+      console.error("Sign out error:", errorMessage);
+      
+      toast.error(
+        <div>
+          <p className="font-semibold">Sign Out Failed</p>
+          <p>{errorMessage}</p>
+        </div>,
+        {
+          className: "bg-red-50 border-red-500 text-red-800",
+          style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
+        }
+      );
       throw error;
     } finally {
       setLoading(false);
