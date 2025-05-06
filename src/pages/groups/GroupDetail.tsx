@@ -91,11 +91,11 @@ const GroupDetail = () => {
         // Handle potential profile issues safely
         if (membersData) {
           const transformedMembers = membersData.map(member => {
-            // Handle case when profiles might be an error or null
+            // Handle case when profiles might be null or undefined
             let userEmail = 'Unknown';
             let userName = 'Unknown User';
             
-            if (member.profiles && typeof member.profiles === 'object' && !('error' in member.profiles)) {
+            if (member.profiles && typeof member.profiles === 'object') {
               userEmail = member.profiles.email || 'Unknown';
               userName = member.profiles.full_name || 'Unknown User';
             }
