@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
@@ -23,8 +24,13 @@ const signupSchema = loginSchema.extend({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+});
+
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignupFormValues = z.infer<typeof signupSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 const Auth = () => {
   const { user, signIn, signUp } = useAuth();
@@ -33,6 +39,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("login");
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Always declare all hooks before any conditional returns
   const loginForm = useForm<LoginFormValues>({
@@ -49,6 +56,13 @@ const Auth = () => {
       name: "",
       email: "",
       password: "",
+    },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
     },
   });
 
@@ -80,13 +94,13 @@ const Auth = () => {
     const handleHashRedirect = async () => {
       const hash = window.location.hash;
       if (hash && hash.substring(1).split('&').some(param => param.startsWith('access_token='))) {
-        const { error } = await supabase.auth.getUser();
-        if (!error) {
-          navigate('/dashboard');
-          toast.success("Successfully authenticated!", {
+        const { data, error } = await supabase.auth.getUser();
+        if (!error && data.user) {
+          toast.success("Email verified successfully. You are now logged in!", {
             className: "bg-green-50 border-green-500 text-green-800",
             style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
           });
+          navigate('/dashboard');
         }
       }
     };
@@ -122,6 +136,48 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (data: ForgotPasswordFormValues) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/auth?tab=login`,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success(
+        <div>
+          <p className="font-semibold">Password reset email sent!</p>
+          <p>Please check your inbox for the reset link.</p>
+        </div>,
+        {
+          className: "bg-green-50 border-green-500 text-green-800",
+          style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
+          duration: 6000
+        }
+      );
+      
+      setShowForgotPassword(false);
+      setActiveTab("login");
+    } catch (error: any) {
+      const errorMessage = error.message || "Error sending password reset email";
+      toast.error(
+        <div>
+          <p className="font-semibold">Password Reset Failed</p>
+          <p>{errorMessage}</p>
+        </div>,
+        {
+          className: "bg-red-50 border-red-500 text-red-800",
+          style: { backgroundColor: "#fef2f2", borderLeftColor: "#ef4444" },
+        }
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -139,22 +195,17 @@ const Auth = () => {
         )}
         
         <Card>
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login">
+          {showForgotPassword ? (
+            <>
               <CardHeader>
-                <CardTitle>Login</CardTitle>
-                <CardDescription>Enter your credentials to access your account</CardDescription>
+                <CardTitle>Reset Password</CardTitle>
+                <CardDescription>Enter your email to receive a password reset link</CardDescription>
               </CardHeader>
               <CardContent>
-                <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                <Form {...forgotPasswordForm}>
+                  <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)} className="space-y-4">
                     <FormField
-                      control={loginForm.control}
+                      control={forgotPasswordForm.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
@@ -171,107 +222,168 @@ const Auth = () => {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={loginForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="••••••••" 
-                              type="password" 
-                              autoComplete="current-password"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? "Signing in..." : "Sign In"}
-                    </Button>
+                    <div className="flex flex-col space-y-2">
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Sending..." : "Send Reset Link"}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        onClick={() => setShowForgotPassword(false)} 
+                        className="w-full"
+                      >
+                        Back to Login
+                      </Button>
+                    </div>
                   </form>
                 </Form>
               </CardContent>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <CardHeader>
-                <CardTitle>Create an account</CardTitle>
-                <CardDescription>Enter your details to create a new account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...signupForm}>
-                  <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
-                    <FormField
-                      control={signupForm.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="John Doe" 
-                              type="text" 
-                              autoComplete="name"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={signupForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="email@example.com" 
-                              type="email" 
-                              autoComplete="email"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={signupForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="••••••••" 
-                              type="password" 
-                              autoComplete="new-password"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? "Creating account..." : "Create Account"}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <p className="text-xs text-muted-foreground">
-                  By creating an account, you agree to our Terms of Service and Privacy Policy
-                </p>
-              </CardFooter>
-            </TabsContent>
-          </Tabs>
+            </>
+          ) : (
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login">
+                <CardHeader>
+                  <CardTitle>Login</CardTitle>
+                  <CardDescription>Enter your credentials to access your account</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...loginForm}>
+                    <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                      <FormField
+                        control={loginForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="email@example.com" 
+                                type="email" 
+                                autoComplete="email"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={loginForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="••••••••" 
+                                type="password" 
+                                autoComplete="current-password"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="text-right">
+                        <Button 
+                          type="button" 
+                          variant="link" 
+                          onClick={() => setShowForgotPassword(true)} 
+                          className="p-0 h-auto font-normal text-sm"
+                        >
+                          Forgot Password?
+                        </Button>
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Signing in..." : "Sign In"}
+                      </Button>
+                    </form>
+                  </Form>
+                </CardContent>
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <CardHeader>
+                  <CardTitle>Create an account</CardTitle>
+                  <CardDescription>Enter your details to create a new account</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...signupForm}>
+                    <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
+                      <FormField
+                        control={signupForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="John Doe" 
+                                type="text" 
+                                autoComplete="name"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={signupForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="email@example.com" 
+                                type="email" 
+                                autoComplete="email"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={signupForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="••••••••" 
+                                type="password" 
+                                autoComplete="new-password"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Creating account..." : "Create Account"}
+                      </Button>
+                    </form>
+                  </Form>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                  <p className="text-xs text-muted-foreground">
+                    By creating an account, you agree to our Terms of Service and Privacy Policy
+                  </p>
+                </CardFooter>
+              </TabsContent>
+            </Tabs>
+          )}
         </Card>
       </div>
     </div>

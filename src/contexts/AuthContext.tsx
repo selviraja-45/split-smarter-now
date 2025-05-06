@@ -40,6 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('User signed out');
         } else if (event === 'USER_UPDATED') {
           console.log('User updated:', session?.user);
+        } else if (event === 'USER_DELETED') {
+          console.log('User deleted');
+        } else if (event === 'PASSWORD_RECOVERY') {
+          console.log('Password recovery initiated');
         }
       }
     );
@@ -52,7 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle password recovery
       } else if (hash && hash.includes('type=signup')) {
         console.log('Email confirmation detected');
-        // Handle email confirmation
+        // Show success toast for email verification
+        toast.success("Email verified successfully! You can now login.", {
+          className: "bg-green-50 border-green-500 text-green-800",
+          style: { backgroundColor: "#f0fdf4", borderLeftColor: "#22c55e" },
+          duration: 6000
+        });
       }
     };
     

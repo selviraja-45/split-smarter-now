@@ -4,19 +4,19 @@ import { Button } from "@/components/ui/button";
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen pt-32 pb-16 px-6 md:px-12 lg:px-24 overflow-hidden">
-      {/* Animated background blobs - updated to lighter shade */}
-      <div className="blob w-72 h-72 top-20 left-[10%] animate-blob opacity-40"></div>
-      <div className="blob w-96 h-96 top-40 right-[15%] animate-blob animation-delay-2000 opacity-40"></div>
-      <div className="blob w-72 h-72 bottom-40 left-[20%] animate-blob animation-delay-4000 opacity-40"></div>
+      {/* Animated background blobs - with increased color opacity */}
+      <div className="blob w-72 h-72 top-20 left-[10%] animate-blob opacity-60"></div>
+      <div className="blob w-96 h-96 top-40 right-[15%] animate-blob animation-delay-2000 opacity-60"></div>
+      <div className="blob w-72 h-72 bottom-40 left-[20%] animate-blob animation-delay-4000 opacity-60"></div>
       
       <div className="container mx-auto relative z-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          <div className="w-full lg:w-1/2 text-center lg:text-left">
+        <div className="flex flex-col items-center justify-between gap-12">
+          <div className="w-full text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               Split Smarter. <br />
               <span className="text-primary">Spend Better.</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-gray-700">
+            <p className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto">
               Share group expenses with ease.
             </p>
             <Button size="lg" className="text-lg px-8 py-6">
@@ -24,11 +24,11 @@ const HeroSection = () => {
             </Button>
           </div>
 
-          <div className="w-full lg:w-1/2 animate-float">
+          <div className="w-full max-w-4xl mx-auto animate-float">
             {/* Mock UI for the app */}
             <div className="relative flex justify-center">
               {/* Desktop mockup */}
-              <div className="hidden md:block bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200 w-[90%] max-w-lg">
+              <div className="hidden md:block bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200 w-[90%] max-w-4xl">
                 <div className="bg-gray-100 p-2 flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
@@ -100,7 +100,7 @@ const HeroSection = () => {
               </div>
               
               {/* Mobile mockup (shown only on mobile views) */}
-              <div className="md:hidden bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200 w-full max-w-[280px]">
+              <div className="md:hidden bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200 w-full max-w-[320px]">
                 <div className="bg-gray-100 p-2 flex items-center justify-between">
                   <div className="text-sm font-medium">9:41</div>
                   <div className="flex space-x-1">
