@@ -1,11 +1,13 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Navigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, Users } from "lucide-react";
+import { GroupMembersList } from "@/components/groups/GroupMembersList";
+import { GroupInviteCode } from "@/components/groups/GroupInviteCode";
+import { GroupExpensesPlaceholder } from "@/components/groups/GroupExpensesPlaceholder";
 
 interface Group {
   id: string;
@@ -92,13 +94,11 @@ const GroupDetail = () => {
             let userEmail = 'Unknown';
             let userName = 'Unknown User';
             
-            // Fixed TypeScript error by properly checking if profiles exists before accessing its properties
+            // Safely access profile properties with proper null checking
             if (member.profiles) {
-              // Additional check to ensure profiles is an object
               if (typeof member.profiles === 'object') {
-                // Safe property access with nullish coalescing operator
-                userEmail = member.profiles?.email ?? 'Unknown';
-                userName = member.profiles?.full_name ?? 'Unknown User';
+                userEmail = member.profiles.email ?? 'Unknown';
+                userName = member.profiles.full_name ?? 'Unknown User';
               }
             }
             
@@ -122,13 +122,6 @@ const GroupDetail = () => {
 
     fetchGroupDetails();
   }, [user, id, navigate]);
-
-  const copyInviteCode = () => {
-    if (!group) return;
-    
-    navigator.clipboard.writeText(group.invite_code);
-    toast.success('Invite code copied to clipboard');
-  };
 
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -163,64 +156,14 @@ const GroupDetail = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
         <div className="md:col-span-8">
           {/* This space reserved for expenses/transactions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Expenses</CardTitle>
-              <CardDescription>Shared expenses will appear here</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <p>No expenses yet</p>
-                <p className="text-sm mt-2">Expense tracking coming soon</p>
-              </div>
-            </CardContent>
-          </Card>
+          <GroupExpensesPlaceholder />
         </div>
 
         <div className="md:col-span-4">
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>Members</span>
-                <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-1 rounded">
-                  {members.length}
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="divide-y">
-                {members.map((member) => (
-                  <li key={member.id} className="py-3 flex justify-between items-center">
-                    <div>
-                      <p>{member.user_name}</p>
-                      <p className="text-xs text-muted-foreground">{member.user_email}</p>
-                    </div>
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded capitalize">
-                      {member.role}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          <GroupMembersList members={members} />
 
           {isOwner && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Invite Members</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                  <div className="font-mono text-sm">{group.invite_code}</div>
-                  <Button variant="ghost" size="icon" onClick={copyInviteCode}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Share this code with others to invite them to your group
-                </p>
-              </CardContent>
-            </Card>
+            <GroupInviteCode inviteCode={group.invite_code} />
           )}
         </div>
       </div>
