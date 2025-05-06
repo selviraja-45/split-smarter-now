@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +21,11 @@ const Navbar = () => {
           </div>
         </div>
         
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center space-x-4">
+          <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+            <LogIn className="mr-2 h-4 w-4" />
+            Login
+          </Button>
           <Button>Get Started</Button>
         </div>
         
@@ -48,6 +53,10 @@ const Navbar = () => {
             <a href="#features" className="text-gray-700 hover:text-primary transition-colors">Features</a>
             <a href="#how-it-works" className="text-gray-700 hover:text-primary transition-colors">How it Works</a>
             <a href="#demo" className="text-gray-700 hover:text-primary transition-colors">Demo</a>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full">
+              <LogIn className="mr-2 h-4 w-4" />
+              Login
+            </Button>
             <Button className="w-full">Get Started</Button>
           </div>
         </div>
