@@ -3,24 +3,24 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen pt-24 pb-16 px-6 md:px-12 lg:px-24 overflow-hidden">
-      {/* Animated background blobs */}
-      <div className="blob w-72 h-72 top-20 left-[10%] animate-blob opacity-70"></div>
-      <div className="blob w-96 h-96 top-40 right-[15%] animate-blob animation-delay-2000 opacity-70"></div>
-      <div className="blob w-72 h-72 bottom-40 left-[20%] animate-blob animation-delay-4000 opacity-70"></div>
+    <section className="relative min-h-screen pt-32 pb-16 px-6 md:px-12 lg:px-24 overflow-hidden">
+      {/* Animated background blobs - updated to lighter shade */}
+      <div className="blob w-72 h-72 top-20 left-[10%] animate-blob opacity-40"></div>
+      <div className="blob w-96 h-96 top-40 right-[15%] animate-blob animation-delay-2000 opacity-40"></div>
+      <div className="blob w-72 h-72 bottom-40 left-[20%] animate-blob animation-delay-4000 opacity-40"></div>
       
       <div className="container mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
           <div className="w-full lg:w-1/2 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Split smarter. <br />
-              <span className="text-primary">Spend better.</span>
+              Split Smarter. <br />
+              <span className="text-primary">Spend Better.</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-700">
               Share group expenses with ease.
             </p>
             <Button size="lg" className="text-lg px-8 py-6">
-              Start Tracking Expenses
+              Start Sharing Expenses
             </Button>
           </div>
 
@@ -34,13 +34,13 @@ const HeroSection = () => {
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
                 </div>
-                <div className="p-6">
+                <div className="p-6 font-['Inter']">
                   <div className="flex justify-between mb-6">
                     <div>
                       <h3 className="font-bold text-lg mb-1">Trip to Bali</h3>
                       <p className="text-sm text-gray-600">5 members</p>
                     </div>
-                    <div className="bg-primary text-white rounded-full px-4 py-1 text-sm font-medium">Active</div>
+                    <div className="bg-primary text-white rounded-full px-4 py-1 text-sm font-medium flex items-center justify-center">Active</div>
                   </div>
                   
                   <div className="space-y-4 mb-6">
@@ -115,9 +115,9 @@ const HeroSection = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="p-4">
+                <div className="p-4 font-['Inter']">
                   <h3 className="font-bold text-lg mb-1">Trip to Bali</h3>
-                  <div className="bg-primary text-white rounded-full px-3 py-1 text-xs font-medium w-fit mb-4">Active</div>
+                  <div className="bg-primary text-white rounded-full px-3 py-1 text-xs font-medium w-fit mb-4 flex items-center justify-center">Active</div>
                   
                   <div className="space-y-3 mb-4">
                     <div className="bg-gray-50 p-3 rounded-lg">
